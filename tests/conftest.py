@@ -115,6 +115,7 @@ def driver():
         # Headed mode — visible in noVNC at http://localhost:7900
         drv = webdriver.Remote(command_executor=remote_url, options=options)
     else:
+        options.add_argument("--headless=new")
         try:
             from webdriver_manager.chrome import ChromeDriverManager
             service = Service(ChromeDriverManager().install())
