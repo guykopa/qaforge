@@ -4,10 +4,10 @@ import pytest
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 
-load_dotenv()
-
 from app.domain.cart import Cart, Item
 from app.main import app, _carts, _orders, _payments
+
+load_dotenv()
 
 
 # ── Domain fixtures ───────────────────────────────────────────────────────────
