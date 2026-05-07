@@ -1,0 +1,13 @@
+{
+  "name": "qaforge-cypress",
+  "version": "1.0.0",
+  "description": "Cypress E2E tests for qaforge",
+  "scripts": {
+    "cy:run": "cypress run",
+    "cy:open": "cypress open"
+  },
+  "devDependencies": {
+    "cypress": "^13.15.2",
+    "cypress-mochawesome-reporter": "^3.8.2"
+  }
+}

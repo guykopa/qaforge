@@ -1,0 +1,110 @@
+name: qaforge CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  unit-and-api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint with flake8
+        run: flake8 app/ tests/
+
+      - name: Run unit tests
+        run: pytest tests/unit/ -v --cov=app --cov-report=xml
+
+      - name: Run API tests
+        run: pytest tests/api/ -v
+
+      - name: Run non-regression tests
+        run: pytest tests/non_regression/ -v
+
+      - name: Fail if coverage below 90%
+        run: pytest tests/unit/ tests/api/ --cov=app --cov-fail-under=90
+
+      - name: Generate HTML report
+        run: pytest tests/unit/ tests/api/ tests/non_regression/ --html=reports/report.html --self-contained-html
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: reports/report.html
+
+  e2e-selenium:
+    runs-on: ubuntu-latest
+    needs: unit-and-api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start application
+        run: uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+
+      - name: Wait for app to be ready
+        run: |
+          for i in $(seq 1 10); do
+            curl -sf http://localhost:8000/docs && break
+            sleep 2
+          done
+
+      - name: Run Selenium E2E tests
+        run: pytest tests/e2e/ -v
+
+  e2e-cypress:
+    runs-on: ubuntu-latest
+    needs: unit-and-api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Cypress
+        run: npm install
+
+      - name: Start application
+        run: uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+
+      - name: Wait for app to be ready
+        run: |
+          for i in $(seq 1 10); do
+            curl -sf http://localhost:8000/docs && break
+            sleep 2
+          done
+
+      - name: Run Cypress tests
+        run: npx cypress run --config-file cypress/cypress.config.js

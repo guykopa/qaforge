@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Order confirmation</title></head>
+<body>
+  <h1>Order confirmation</h1>
+
+  {% if success %}
+    <div id="order-success" data-cy="order-success">
+      <p>Your order has been confirmed!</p>
+    </div>
+    <span id="order-number" data-cy="order-number">{{ order_id }}</span>
+    <button id="refund-btn" data-cy="refund-btn"
+            data-payment-id="{{ payment_id }}">Request refund</button>
+  {% else %}
+    <div id="order-error" data-cy="order-error">
+      <p>Payment declined. Please try another card.</p>
+    </div>
+  {% endif %}
+
+  <script>
+    const refundBtn = document.getElementById('refund-btn');
+    if (refundBtn) {
+      refundBtn.addEventListener('click', async () => {
+        await fetch(`/payment/${refundBtn.dataset.paymentId}/refund`, { method: 'POST' });
+        refundBtn.textContent = 'Refunded';
+        refundBtn.disabled = true;
+      });
+    }
+  </script>
+</body>
+</html>

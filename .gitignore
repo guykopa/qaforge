@@ -1,0 +1,50 @@
+CLAUDE.md
+Architecture.md
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Reports (generated)
+reports/*.html
+reports/*.xml
+reports/assets/
+reports/screenshots/
+!reports/.gitkeep
+
+# Node / Cypress
+node_modules/
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
