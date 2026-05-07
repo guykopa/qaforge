@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Checkout</title></head>
+<body>
+  <h1>Checkout</h1>
+
+  <div id="guest-checkout" data-cy="guest-checkout">
+    <p>Continuing as guest — no account required.</p>
+  </div>
+
+  <div id="address-form">
+    <h2>Delivery address</h2>
+    <input id="street"   data-cy="street"    type="text" placeholder="Street">
+    <input id="city"     data-cy="city"      type="text" placeholder="City">
+    <input id="zip-code" data-cy="zip-code"  type="text" placeholder="Zip code">
+  </div>
+
+  <div id="payment-form">
+    <h2>Payment</h2>
+    <input id="card-number" data-cy="card-number" type="text" placeholder="Card number">
+  </div>
+
+  <button id="confirm-order" data-cy="confirm-order">Confirm order</button>
+
+  <script>
+    const cartId = '{{ cart_id }}';
+
+    document.getElementById('confirm-order').addEventListener('click', async () => {
+      const cardNumber = document.getElementById('card-number').value;
+
+      const orderRes = await fetch('/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cart_id: cartId })
+      });
+      if (!orderRes.ok) {
+        window.location.href = '/confirmation-page?success=false';
+        return;
+      }
+      const order = await orderRes.json();
+
+      const paymentRes = await fetch('/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: order.id, card_number: cardNumber })
+      });
+      const payment = await paymentRes.json();
+
+      const success = payment.status === 'SUCCESS';
+      window.location.href =
+        `/confirmation-page?success=${success}&order_id=${order.id}&payment_id=${payment.id}`;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Cart</title></head>
+<body>
+  <h1>Shopping Cart</h1>
+
+  {% if cart.items %}
+    <div id="cart-items">
+      {% for item in cart.items %}
+      <div class="cart-item">
+        <span>{{ item.name }}</span>
+        <span>€{{ "%.2f"|format(item.price) }}</span>
+        <button class="remove-item" data-cy="remove-item"
+                data-item-id="{{ item.id }}">Remove</button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div id="cart-total-section">
+      <span id="cart-total" data-cy="cart-total">€{{ "%.2f"|format(cart_total) }}</span>
+    </div>
+
+    <div id="discount-section">
+      <input id="discount-code" data-cy="discount-input" type="text" placeholder="Discount code">
+      <button id="apply-discount" data-cy="apply-discount">Apply</button>
+    </div>
+
+    <button id="proceed-to-checkout" data-cy="proceed-to-checkout">Checkout</button>
+  {% else %}
+    <div id="empty-cart-message" data-cy="empty-cart-message">Your cart is empty.</div>
+  {% endif %}
+
+  <script>
+    const cartId = '{{ cart.id }}';
+
+    document.querySelectorAll('.remove-item').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await fetch(`/cart/${cartId}/items/${btn.dataset.itemId}`, { method: 'DELETE' });
+        window.location.reload();
+      });
+    });
+
+    const applyBtn = document.getElementById('apply-discount');
+    if (applyBtn) {
+      applyBtn.addEventListener('click', async () => {
+        const code = document.getElementById('discount-code').value;
+        const res = await fetch(`/cart/${cartId}/discount`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('cart-total').textContent = `€${data.total.toFixed(2)}`;
+        }
+      });
+    }
+
+    const checkoutBtn = document.getElementById('proceed-to-checkout');
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', () => {
+        window.location.href = `/checkout-page/${cartId}`;
+      });
+    }
+  </script>
+</body>
+</html>

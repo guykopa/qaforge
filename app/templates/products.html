@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Products</title></head>
+<body>
+  <h1>Products</h1>
+  <div id="product-laptop">
+    <h2>Laptop</h2>
+    <p>€999.99</p>
+    <input type="number" name="quantity" id="quantity-input" value="1" min="1">
+    <button id="add-to-cart" data-cy="add-to-cart">Add to Cart</button>
+  </div>
+
+  <script>
+    document.getElementById('add-to-cart').addEventListener('click', async () => {
+      const qty = parseInt(document.querySelector('[name=quantity]').value) || 1;
+      const cartRes = await fetch('/cart', { method: 'POST' });
+      const cart = await cartRes.json();
+      for (let i = 0; i < qty; i++) {
+        await fetch(`/cart/${cart.id}/items`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: 'item-001', name: 'Laptop', price: 999.99, stock: 10 })
+        });
+      }
+      window.location.href = `/cart-page/${cart.id}`;
+    });
+  </script>
+</body>
+</html>
