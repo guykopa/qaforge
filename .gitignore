@@ -29,6 +29,10 @@ reports/assets/
 reports/screenshots/
 !reports/.gitkeep
 
+# Allure (generated)
+allure-results/
+allure-report/
+
 # Node / Cypress
 node_modules/
 cypress/videos/
